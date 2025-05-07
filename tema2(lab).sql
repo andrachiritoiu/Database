@@ -17,7 +17,12 @@ FROM CLIENTI C
 JOIN REZERVARI R ON R.ID_CLIENT=C.ID_CLIENT
 JOIN PLATI P ON P.ID_REZERVARE=R.ID_REZERVARE
 JOIN REVIEWS RW ON RW.ID_CLIENT=C.ID_CLIENT
-WHERE P.METODA = 'CASH'
+WHERE C.ID_CLIENT NOT IN (
+    SELECT R2.ID_CLIENT
+    FROM REZERVARI R2
+    JOIN PLATI P1 ON R2.ID_REZERVARE=P1.ID_REZERVARE
+    WHERE P1.METODA!='CASH'
+    )
     AND RW.ID_CLIENT IN
         (SELECT RW1.ID_CLIENT
          FROM REVIEWS RW1
@@ -25,6 +30,7 @@ WHERE P.METODA = 'CASH'
          GROUP BY RW1.ID_CLIENT
          HAVING COUNT(RW1.ID_REVIEW)>=3
     );
+
 
 --3. Sa se afize primii N clienti (id si nume) in functie de totalul cheltuielilor pe rezervari, unde
 --N reprezinta numarul de proprietati care au fost rezervate in 2025 (indiferent daca rezervarea
